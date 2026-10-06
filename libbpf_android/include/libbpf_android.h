@@ -23,6 +23,8 @@
 
 #include <android-base/properties.h>
 
+#include "bpf/BpfUtils.h"
+
 namespace android {
 namespace bpf {
 
@@ -34,6 +36,9 @@ unsigned int readSectionUint(const char* name, std::ifstream& elfFile, unsigned 
 
 // Wait for bpfloader to load BPF programs.
 static inline void waitForProgsLoaded() {
+    // Without eBPF no programs load, so there is nothing to wait for.
+    if (!isBpfSupported()) return;
+
     // infinite loop until success with 5/10/20/40/60/60/60... delay
     for (int delay = 5;; delay *= 2) {
         if (delay > 60) delay = 60;

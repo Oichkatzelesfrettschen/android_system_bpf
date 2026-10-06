@@ -112,6 +112,14 @@ void createSysFsBpfSubDir(const char* const prefix) {
 }
 
 int main() {
+    // Without eBPF the loader pins nothing and leaves bpf.progs_loaded unset, so it never
+    // signals maps that do not exist; waitForProgsLoaded() returns from isBpfSupported()
+    // instead. Exiting 0 keeps reboot_on_failure in bpfloader.rc inert.
+    if (!android::bpf::isBpfSupported()) {
+        ALOGI("ro.kernel.ebpf.supported is false, loading no BPF programs");
+        return 0;
+    }
+
     // Load all ELF objects, create programs and maps, and pin them
     for (const auto location : locations) {
         createSysFsBpfSubDir(location.prefix);
