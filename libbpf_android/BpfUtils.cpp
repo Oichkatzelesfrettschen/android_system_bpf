@@ -34,6 +34,7 @@
 #include <sstream>
 #include <string>
 
+#include <android-base/properties.h>
 #include <android-base/unique_fd.h>
 #include <log/log.h>
 #include <processgroup/processgroup.h>
@@ -108,6 +109,11 @@ unsigned kernelVersion() {
     if (ret < 3) return 0;
 
     return KVER(kver_major, kver_minor, kver_sub);
+}
+
+bool isBpfSupported() {
+    static const bool supported = base::GetBoolProperty("ro.kernel.ebpf.supported", true);
+    return supported;
 }
 
 }  // namespace bpf

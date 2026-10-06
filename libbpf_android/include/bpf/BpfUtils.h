@@ -41,6 +41,11 @@ int setrlimitForTest();
 
 unsigned kernelVersion();
 
+// Reads ro.kernel.ebpf.supported once per process; an unset property reads as true. A device
+// whose kernel lacks the bpf(2) syscall sets it false, and callers then skip every map and
+// program operation in favor of their legacy xt_qtaguid and iptables paths.
+bool isBpfSupported();
+
 static inline bool isAtLeastKernelVersion(unsigned major, unsigned minor, unsigned sub) {
     return kernelVersion() >= KVER(major, minor, sub);
 }
