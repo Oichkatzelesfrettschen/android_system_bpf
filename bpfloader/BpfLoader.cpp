@@ -112,13 +112,11 @@ void createSysFsBpfSubDir(const char* const prefix) {
 }
 
 int main() {
-    // Without eBPF the loader pins nothing, publishes completion for every process waiting on
-    // bpf.progs_loaded, and always exits 0 so reboot_on_failure in bpfloader.rc stays inert.
+    // Without eBPF the loader pins nothing and leaves bpf.progs_loaded unset, so it never
+    // signals maps that do not exist; waitForProgsLoaded() returns from isBpfSupported()
+    // instead. Exiting 0 keeps reboot_on_failure in bpfloader.rc inert.
     if (!android::bpf::isBpfSupported()) {
         ALOGI("ro.kernel.ebpf.supported is false, loading no BPF programs");
-        if (!android::base::SetProperty("bpf.progs_loaded", "1")) {
-            ALOGE("Failed to set bpf.progs_loaded property");
-        }
         return 0;
     }
 
